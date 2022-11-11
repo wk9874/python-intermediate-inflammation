@@ -87,12 +87,17 @@ class Observation:
     def __str__(self):
         return self.value
 
+    def __eq__(self, other):
+        return self.day, self.value == other.day, other.value
+
 
 class Person:
     def __init__(self, name):
         self.name = name
     def __str__(self):
         return self.name
+    def __eq__(self, other):
+        return self.name == other.name
 
 class Doctor(Person):
     def __init__(self, name):
@@ -128,6 +133,10 @@ class Patient(Person):
 
         new_observation = Observation(day, observed_value)
         self.observations.append(new_observation)
+
+
+# Ignore all below
+
 
 # alice = Patient('Alice')
 # print(alice)

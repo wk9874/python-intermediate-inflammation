@@ -19,3 +19,17 @@ def test_patients_json_serializer():
         for obs_new, obs in zip(patient_new.observations, patient.observations):
             assert obs_new.day == obs.day
             assert obs_new.value == obs.value
+
+def test_patients_json_serializer_eq_methods():
+    # Create some test data
+    patients = [
+        models.Patient('Alice', [models.Observation(i, i + 1) for i in range(3)]),
+        models.Patient('Bob', [models.Observation(i, 2 * i) for i in range(3)]),
+    ]
+
+    # Save and reload the data
+    output_file = 'patients.json'
+    serializers.PatientJSONSerializer.save(patients, output_file)
+    patients_new = serializers.PatientJSONSerializer.load(output_file)
+
+    assert patients_new == patients
