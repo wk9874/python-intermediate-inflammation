@@ -3,7 +3,7 @@
 
 import argparse
 
-from inflammation import models, views
+from inflammation import models, views, serializers
 
 
 def main(args):
@@ -19,15 +19,32 @@ def main(args):
 
 
     for filename in infiles:
-        inflammation_data = models.load_csv(filename)
+        if args.filetype == 'csv':
+            inflammation_data = models.load_csv(filename)
+        elif args.filetype == 'json':
+            inflammation_data = serializers.PatientJSONSerializer.load(filename)
 
-        view_data = {
-            'average': models.daily_mean(inflammation_data),
-            'max': models.daily_max(inflammation_data),
-            'min': models.daily_min(inflammation_data)
-            }
+        if args.view == 'visualize':
 
-        views.visualize(view_data)
+            view_data = {
+                'average': models.daily_mean(inflammation_data),
+                'max': models.daily_max(inflammation_data),
+                'min': models.daily_min(inflammation_data)
+                }
+
+            views.visualize(view_data)
+        
+        elif args.view == 'record':
+            if args.filetype == 'csv':
+                patient_data = inflammation_data[args.patient]
+                observations = [models.Observation(day, value) for day, value in enumerate(patient_data)]
+                patient = models.Patient('UNKNOWN', observations)
+                views.display_patient_record(patient)
+            elif args.filetype == 'json':
+                patient_data = inflammation_data[args.patient]
+                views.display_patient_record(patient_data)
+
+
 
 if __name__ == "__main__":
     parser = argparse.ArgumentParser(
@@ -37,6 +54,24 @@ if __name__ == "__main__":
         'infiles',
         nargs='+',
         help='Input CSV(s) containing inflammation series for each patient')
+
+    parser.add_argument(
+        '--view',
+        default='visualize',
+        choices=['visualize', 'record'],
+        help='Which view should be used?')
+
+    parser.add_argument(
+        '--patient',
+        type=int,
+        default=0,
+        help='Which patient should be displayed?')
+    
+    parser.add_argument(
+        '--filetype',
+        default='csv',
+        choices=['csv', 'json'],
+        help='Which type of file is the data stored?')
 
     args = parser.parse_args()
 

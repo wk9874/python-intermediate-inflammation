@@ -60,3 +60,136 @@ def patient_normalise(data):
     normalised[normalised < 0] = 0
     return normalised
 
+data = np.array([1., 2., 3.])
+names = ['Jane', 'Yaz', 'Dan']
+
+
+def attach_names(data, names):
+    output = []
+    assert len(data) == len(names)
+    for data_row, name in zip(data, names):
+        output.append({
+            'name': name,
+            'data': data_row
+            })
+    return output
+    
+attached_names = attach_names(data, names)
+print(attached_names)
+
+
+
+class Observation:
+    def __init__(self, day, value):
+        self.day = day
+        self.value = value
+
+    def __str__(self):
+        return self.value
+
+
+class Person:
+    def __init__(self, name):
+        self.name = name
+    def __str__(self):
+        return self.name
+
+class Doctor(Person):
+    def __init__(self, name):
+        super().__init__(name)
+        self.list_patients = []
+    
+    def add_patient(self, patient_name):
+        for patient in self.list_patients:
+            if patient_name == patient:
+                return
+        self.list_patients.append(patient_name)
+
+class Patient(Person):
+    def __init__(self, name, observations=None):
+        super().__init__(name)
+        self.observations = []
+        if observations is not None:
+            self.observations = observations
+
+    def __str__(self):
+        return self.name
+    
+    @property
+    def last_observation(self):
+        return self.observations[-1]
+
+    def add_observation(self, observed_value, day=None):
+        if day is None:
+            try:
+                day = self.observations[-1].day + 1
+            except IndexError:
+                day = 0
+
+        new_observation = Observation(day, observed_value)
+        self.observations.append(new_observation)
+
+# alice = Patient('Alice')
+# print(alice)
+# alice.add_observation(3)
+# alice.add_observation(4)
+# alice.add_observation(5, 3)
+# print(alice.observations)
+# print(alice.last_observation)
+
+
+
+# class Book:
+#     def __init__(self, book_name, author):
+#         self.title = book_name
+#         self.author = author
+    
+#     def __str__(self):
+#         return (f"{self.title} by {', '.join(self.author)}")
+
+# uni_physics = Book('University Physics with Modern Physics', 'H. Young')
+
+# print(uni_physics)
+
+# class Library:
+#     def __init__(self):
+#         self.books = []
+
+#     def __len__(self):
+#         return len(self.books)
+
+#     def __getitem__(self, key):
+#         return self.books[key]
+
+#     def add_book(self, title, author):
+#         self.books.append(Book(title, author))
+    
+#     def by_author(self, author):
+#         matches = []
+#         for book in self.books:
+#             if book.author == author:
+#                 matches.append(book)
+
+#         if not matches:
+#             raise KeyError('Author does not exist')
+
+#         return matches
+
+# lib = Library()
+# lib.add_book(uni_physics)
+# lib.by_author("H. Young")
+
+# from functools import reduce
+
+# sequence = ['-1', '-4', '3']
+
+# def sum_of_squares(sequence):
+#     sequence = [float(str) for str in sequence if str[0] != '#']
+#     square = [num**2 for num in sequence]
+#     return reduce(lambda a, b: a + b, square)
+
+
+# print('Sum of squares is:', sum_of_squares(sequence))
+
+
+
